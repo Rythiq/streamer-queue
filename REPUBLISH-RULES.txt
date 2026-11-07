@@ -1,0 +1,76 @@
+REPUBLISH THE DATABASE RULES
+============================
+
+Plain text file, no markdown, so nothing gets clipped.
+
+
+WHY THIS IS NEEDED
+------------------
+
+The data model changed after you published the rules the first time.
+
+A queue now stores the streamer's username, and every person in
+line now stores two things instead of one. They store their
+Twitch handle and their in-game name separately.
+
+The rules that are currently published on your Firebase project
+were written before those fields existed. Those old rules only
+allow one field per entry, so joining the queue would be rejected
+with a permission error.
+
+The fix is to publish the current rules file once more. It takes
+about thirty seconds. Nothing else about your project changes.
+No new project, no new billing anything, still on the free plan.
+
+
+WHAT TO DO
+----------
+
+First, open the file named database.rules.json in the project
+folder. Select the entire contents and copy it.
+
+Then go to the Firebase console at console.firebase.google.com
+and open your streamer-queue project.
+
+In the left sidebar, click Realtime Database. It is under the
+heading "Build", and it may also be listed under "Project
+shortcuts".
+
+At the top of the Realtime Database page there are two tabs, Data
+and Rules. Click Rules.
+
+You will see a code editor containing the old rules. Select
+everything inside that editor and delete it. Make sure the editor
+is completely empty before you paste, because leftover braces are
+the usual cause of a syntax error here.
+
+Now paste the contents you copied from database.rules.json.
+
+Click Publish.
+
+If the editor shows a red underline or refuses to publish, the
+copy was incomplete. Copy the whole file again rather than trying
+to repair it by hand.
+
+
+HOW TO CHECK IT WORKED
+----------------------
+
+Just tell me when you have published it. I will run a short test
+against your database from here and confirm that the new fields
+are accepted and that the old security guarantees still hold.
+
+You do not need to test anything yourself.
+
+
+WHAT ELSE DO I NEED FROM YOU
+----------------------------
+
+Nothing else for now.
+
+The remaining work is the interface itself, which is still being
+built. Once it lands I will wire it together, build it, and push
+it to the repository you already created.
+
+The site will appear at https://rythiq.github.io/streamer-queue/
+after that push.

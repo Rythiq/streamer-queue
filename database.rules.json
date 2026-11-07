@@ -1,0 +1,82 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "queues": {
+      "$qid": {
+        "meta": {
+          ".write": "(!data.exists() && newData.child('_a').isString() && newData.child('_a').val().length >= 24) || (data.exists() && newData.child('_a').val() === data.child('_a').val())",
+          ".validate": "newData.hasChildren(['name','ownerName','status','createdAt','_a'])",
+          "name": {
+            ".read": true,
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+          },
+          "ownerName": {
+            ".read": true,
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 32"
+          },
+          "status": {
+            ".read": true,
+            ".validate": "newData.val() === 'open' || newData.val() === 'paused' || newData.val() === 'closed'"
+          },
+          "createdAt": {
+            ".read": true,
+            ".validate": "newData.isNumber()"
+          },
+          "nowPlaying": {
+            ".read": true,
+            ".validate": "newData.isString()"
+          },
+          "resetAt": {
+            ".read": true,
+            ".validate": "newData.isNumber()"
+          },
+          "removed": {
+            ".read": true,
+            "$eid": { ".validate": "newData.isBoolean()" }
+          },
+          "_a": {
+            ".read": false,
+            ".validate": "newData.isString() && newData.val().length >= 24"
+          },
+          "$other": { ".validate": false }
+        },
+
+        "entries": {
+          ".read": true,
+          "$eid": {
+            ".write": "!data.exists() && newData.hasChildren(['twitch','ingame','joinedAt'])",
+            "twitch": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 32"
+            },
+            "ingame": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 32"
+            },
+            "joinedAt": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "left": {
+          ".read": true,
+          "$eid": {
+            ".write": "newData.isString() && newData.val() === root.child('tokens/' + $qid + '/' + $eid).val()",
+            ".validate": "newData.isString()"
+          }
+        }
+      }
+    },
+
+    "tokens": {
+      "$qid": {
+        ".read": false,
+        "$eid": {
+          ".read": false,
+          ".write": "!data.exists() && newData.isString() && newData.val().length >= 24",
+          ".validate": "newData.isString() && newData.val().length >= 24"
+        }
+      }
+    }
+  }
+}

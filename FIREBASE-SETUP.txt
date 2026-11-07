@@ -1,0 +1,236 @@
+NEXTUP - FIREBASE SETUP
+=======================
+
+This file is plain text on purpose. No markdown, no lists,
+so it should not get clipped by your terminal.
+
+Time needed: about eight minutes.
+Cost: zero, permanently. Details at the end.
+
+
+WHY YOU NEED THIS AT ALL
+------------------------
+
+GitHub Pages can only serve static files. It has no server,
+so it cannot store a queue that everybody sees at the same time.
+
+The app therefore uses Firebase Realtime Database as its storage.
+Firebase has a free tier called the Spark plan. The Spark plan
+does not ask for a billing account, which means Google has no
+payment method on file for your project. With no payment method,
+nothing can ever be charged to you. If you go over the free
+limits, Firebase simply refuses the extra traffic. It does not
+bill you for it.
+
+That is the whole reason for this choice. It is not a promise
+about my accuracy. It is a structural property of not having a
+card attached.
+
+
+WHAT TO AVOID
+-------------
+
+Do not upgrade to the Blaze plan. Do not enable Firestore.
+Do not enable Hosting. Do not enable Cloud Functions.
+
+If any screen asks you for a credit card, you have wandered into
+the wrong plan. Back out and stay on Spark.
+
+You also do not need to set up Authentication. The app has no
+login at all. Viewers just type a name.
+
+
+STEP ONE - CREATE THE FIREBASE PROJECT
+--------------------------------------
+
+Open https://console.firebase.google.com in a browser.
+
+Click the big "Add project" card.
+
+Give the project a name. The suggested name streamer-queue is
+fine, but any name works.
+
+On the next screen it will offer Google Analytics. Turn that off.
+You do not need it and it adds noise.
+
+Click "Create project" and wait for it to finish. Then click
+"Continue" to land in the project dashboard.
+
+
+STEP TWO - CREATE THE DATABASE
+------------------------------
+
+In the left sidebar, find the section called "Build". Open it and
+click "Realtime Database". Be careful here, because there is also
+a product called "Firestore Database" right next to it. You want
+Realtime Database, not Firestore.
+
+Click "Create Database".
+
+Choose the region closest to where most of your viewers are. This
+only affects latency, not cost.
+
+It will ask about security rules and offer two options. Choose
+"Start in locked mode". Everything is locked for now, and we fix
+that in the next step. Click "Enable".
+
+
+STEP THREE - PASTE THE SECURITY RULES
+-------------------------------------
+
+This is the important step. These rules are what actually enforce
+that only the creating browser can manage a queue. They run on
+Google's servers, so they cannot be bypassed from the browser.
+
+Stay in Realtime Database and open the "Rules" tab at the top.
+You will see a small JSON editor.
+
+Select everything in that editor and delete it.
+
+Now open the file called database.rules.json in the project
+folder. Copy its entire contents. Paste that into the editor.
+
+Click "Publish".
+
+If the editor shows a red underline or an error, you probably
+missed a character while copying. Copy the file again rather
+than fixing it by hand.
+
+What those rules do, in plain language: anybody who has a queue
+link can read the queue and add their own name. Only a browser
+holding that queue's secret admin key can rename the queue,
+pause it, close it, kick a player, or reset it. The admin key
+itself is stored in a place that no client is allowed to read,
+so it never leaks to viewers.
+
+
+STEP FOUR - REGISTER THE WEB APP
+--------------------------------
+
+In the top left of the page, click the gear icon next to
+"Project Overview". Choose "Project settings".
+
+Scroll down to the section headed "Your apps".
+
+Click the icon that looks like angle brackets, the one labelled
+web. It is the first icon in that row.
+
+Type "web" as the app nickname. You do not need Firebase Hosting.
+Click "Register app".
+
+
+STEP FIVE - SEND ME THE CONFIG
+------------------------------
+
+Firebase will now show you a code block that starts with
+"const firebaseConfig" and contains seven values.
+
+Copy that whole block and paste it back to me in chat.
+
+I will put it into src/firebase-config.ts for you. If you would
+rather not paste it in chat, you can open that file yourself and
+replace each value that starts with the word PASTE. Either way
+works, because none of those values are secret.
+
+One thing to be careful about. The value named databaseURL must
+be copied exactly as shown. In some regions it does not end in
+firebaseio.com, it ends with a region name followed by
+firebasedatabase.app. If it is wrong, the app will not connect.
+
+
+STEP SIX - PUBLISH ON GITHUB PAGES
+----------------------------------
+
+The workflow file is already in the repo. It builds the site and
+publishes it every time you push to the main branch.
+
+Open the repository on GitHub. Click Settings, then click Pages
+in the left sidebar.
+
+Under "Build and deployment", change the Source dropdown to
+"GitHub Actions". That is the only setting you need to touch.
+
+The site will be published at:
+
+  https://YOUR-USERNAME.github.io/REPO-NAME/
+
+The first deploy takes a minute or two. You can watch it in the
+Actions tab. When it goes green, open the URL.
+
+
+HOW YOU USE IT ONCE IT IS LIVE
+------------------------------
+
+Anyone who opens the site can create a queue. There is no
+account and no approval step. You do not have to be a streamer
+with any special access. You just open the page and create one.
+
+When you create a queue you land straight on its management
+screen, and you get one link to share. That link is the viewer
+link. Put it in your chat, your panels, your description,
+wherever. People who open it type a name and immediately see
+their position in line.
+
+Management is tied to the browser that created the queue. The
+admin key is kept in that browser's local storage and is not
+part of any URL. There is deliberately no owner link that can be
+copied, forwarded, or leaked on stream.
+
+That gives you a clean split. The creating browser can rename
+the queue, pause it, close it, kick a player, or reset it.
+Everybody else who has the viewer link can only join and leave.
+
+The trade-off, which you have already agreed to, is this. If you
+clear site data, use private browsing, or switch devices, you
+permanently lose management of that queue. The queue keeps
+working for viewers, you just cannot control it anymore. That is
+on purpose, because any recovery method would also be a takeover
+method.
+
+There is no public list of queues anywhere in the app. A queue
+only exists for people who have the link. Queue ids are twenty
+two random characters, so guessing one is not realistic.
+
+
+FREE TIER LIMITS AND WHAT THEY MEAN IN PRACTICE
+-----------------------------------------------
+
+On the Spark plan you get one hundred simultaneous connections,
+one gigabyte of stored data, and ten gigabytes of download per
+month.
+
+Each viewer who has the page open holds one connection. So the
+number that matters for you is how many viewers keep the tab open
+at the same time.
+
+Up to roughly eighty concurrent viewers, you are comfortable.
+Beyond one hundred concurrent viewers, the extra ones will not be
+able to connect. Nothing breaks silently and nothing gets billed.
+The database just refuses the connection until somebody else
+closes their tab.
+
+If you ever outgrow that, the only fix is the paid Blaze plan,
+which is exactly the thing this setup avoids. For a 1v1 queue
+format the free limit is usually more than enough, because only
+the people actively waiting need the page open.
+
+
+A HONEST WORD ABOUT SECURITY
+----------------------------
+
+Because there is no login by design, the security model is about
+protecting management, not about proving identity.
+
+What is genuinely enforced, on Google's servers, not in the
+browser: only a browser holding the admin key can change queue
+settings. The admin key cannot be read out of the database.
+Leave tokens cannot be read out of the database either.
+
+What is not enforced: anyone with the viewer link can add names
+to the queue, and a determined troll with the link could add junk
+entries. The creator can kick those entries from the management
+screen, as long as they still have management access in their
+browser.
+
+If that ever becomes a real problem, the fix is a light account
+system, which is a different project.
