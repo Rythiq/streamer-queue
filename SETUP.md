@@ -107,16 +107,29 @@ saved or `databaseURL` is still a placeholder.
 
 ## Part 2 - GitHub Pages
 
-The workflow in `.github/workflows/deploy.yml` builds the site
-and publishes it on every push to `main`.
+The site is published from a `gh-pages` branch. To publish the
+current state at any time:
+
+```bash
+npm run deploy
+```
+
+That builds the site and pushes the result to `gh-pages`.
+
+One-time setup:
 
 1. Open the repo on GitHub
 2. **Settings**
 3. **Pages** in the left sidebar
 4. Under **Build and deployment**, set **Source** to
-   **GitHub Actions**
-5. Push to `main`
-6. Watch the **Actions** tab until it goes green
+   **Deploy from a branch**
+5. Branch: `gh-pages`, folder: `/ (root)`
+6. Save
+
+`docs/github-actions-deploy.yml` is an optional workflow for
+auto-deploy on push. GitHub only accepts workflow files from a
+token with the `workflow` scope, so it is not enabled by default.
+Use one deployment method, not both.
 
 Your site will be at:
 

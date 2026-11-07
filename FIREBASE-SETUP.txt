@@ -141,14 +141,24 @@ firebasedatabase.app. If it is wrong, the app will not connect.
 STEP SIX - PUBLISH ON GITHUB PAGES
 ----------------------------------
 
-The workflow file is already in the repo. It builds the site and
-publishes it every time you push to the main branch.
+Publishing is done from a branch called gh-pages. I will publish
+the first build there, so the site should be live without you
+doing anything.
 
-Open the repository on GitHub. Click Settings, then click Pages
-in the left sidebar.
+The only thing you may need to check is the Pages setting. Open
+the repository on GitHub. Click Settings, then click Pages in the
+left sidebar.
 
-Under "Build and deployment", change the Source dropdown to
-"GitHub Actions". That is the only setting you need to touch.
+Under "Build and deployment", set the Source dropdown to "Deploy
+from a branch". Choose the branch gh-pages and the folder
+/ (root). Then save.
+
+Whenever you want to publish an update later, run this in the
+project folder:
+
+    npm run deploy
+
+That builds the site and pushes it to the gh-pages branch.
 
 The site will be published at:
 
